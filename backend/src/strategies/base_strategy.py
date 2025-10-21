@@ -26,6 +26,37 @@ class BaseStrategy(ABC):
         self.position = "flat"  # flat or long
         self.trades = []
         self.portfolio_values = []
+    
+    def buy(self, date, price):
+        if self.position == "flat":
+            shares_to_buy = self.cash / price
+            self.cash = 0 
+            self.shares_owned = shares_to_buy
+            self.position = "long"
+            self.trades.append({
+                "date": date,
+                "action": "buy",
+                "price": price,
+                "shares": shares_to_buy
+            })
+        else:
+            raise ValueError("Cannot buy shares when position is not flat")
+
+    def sell(self, date, price):
+        if self.position == "long":
+            shares_to_sell = self.shares_owned
+            profit = shares_to_sell * price
+            self.cash += profit
+            self.shares_owned = 0
+            self.position = "flat"
+            self.trades.append({
+                "date": date,
+                "action": "sell",
+                "price": price,
+                "shares": shares_to_sell
+            })
+        else:
+            raise ValueError("Cannot sell shares when position is not long")
 
     @abstractmethod
     def generate_signals(self, data: pd.DataFrame) -> pd.DataFrame:
@@ -37,13 +68,13 @@ class BaseStrategy(ABC):
         pass
 
     @abstractmethod
-    def simulate_trades(self, data: pd.DataFrame, signals: pd.DataFrame) -> pd.DataFrame:
+    def simulate_trades(self, data: pd.DataFrame, signals: pd.DataFrame) -> Dict:
         '''
-        simulate trades for the strategy
-        input: data - pd.DataFrame with stock data, signals - pd.DataFrame with buy/sell signals
-        output: pd.DataFrame with trades
+        data should include buy and sell signals
+        return metrics
         '''
-        pass
+        return {"test": "test"}
+        
 
     def calculate_performance(self) -> Dict:
         '''

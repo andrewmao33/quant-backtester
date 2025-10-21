@@ -4,12 +4,15 @@ import yfinance as yf
 import pandas as pd
 
 from src.data.fetcher import fetch_stock_data
+from src.strategies.ma_crossover import MA_Crossover
+from src.backtesting.engine import BacktestingEngine
 
 app = FastAPI()
 
 class BacktestRequest(BaseModel):
     symbol: str
     period: str = "1y"
+    strategy: str = "ma_crossover" # just ma_crossover for now
 
 @app.get("/")
 def read_root():
@@ -19,8 +22,14 @@ def read_root():
 def run_backtest(request: BacktestRequest):
     try:
         print(request)
-        data = fetch_stock_data(request.symbol, request.period)
-        return data
+        data_list = fetch_stock_data(request.symbol, request.period)
+        data = pd.DataFrame(data_list)  # Convert list to DataFrame
+
+        strategy = MA_Crossover(fast_period=10, slow_period=20)
+        engine = BacktestingEngine(strategy)
+        results = engine.run(data)
+        return results
+        
     except Exception as e:
         return {"error": str(e)}
 

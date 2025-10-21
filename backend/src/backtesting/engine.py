@@ -3,3 +3,15 @@ backtesting engine
 
 should take in a strategy and return backtest result and visualizations
 '''
+
+import pandas as pd
+from src.strategies.base_strategy import BaseStrategy
+
+class BacktestingEngine:
+    def __init__(self, strategy: BaseStrategy):
+        self.strategy = strategy
+
+    def run(self, data: pd.DataFrame):
+        signals = self.strategy.generate_signals(data)
+        results = self.strategy.simulate_trades(data, signals)
+        return results

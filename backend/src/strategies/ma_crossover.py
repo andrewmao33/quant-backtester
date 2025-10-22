@@ -41,13 +41,6 @@ class MA_Crossover(BaseStrategy):
         
         return df
 
-    def simulate_trades(self, data: pd.DataFrame, signals: pd.DataFrame) -> Dict:
-        # For now, just return the signals for testing
-        return {
-            "signals": signals.to_dict('records'),
-            "total_buy_signals": signals['buy_signal'].sum(),
-            "total_sell_signals": signals['sell_signal'].sum()
-        }
 
     def calculate_performance(self) -> Dict:
         pass

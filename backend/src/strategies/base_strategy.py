@@ -67,13 +67,41 @@ class BaseStrategy(ABC):
         '''
         pass
 
-    @abstractmethod
     def simulate_trades(self, data: pd.DataFrame, signals: pd.DataFrame) -> Dict:
-        '''
-        data should include buy and sell signals
-        return metrics
-        '''
-        return {"test": "test"}
+        """
+        Execute trades based on buy/sell signals - common logic for all strategies
+        """
+        # Reset strategy state
+        self.cash = 100000
+        self.shares_owned = 0
+        self.position = "flat"
+        self.trades = []
+        
+        # Execute trades day by day
+        for index, row in signals.iterrows():
+            date = row['date']
+            price = row['close']
+            
+            # Buy signal
+            if row['buy_signal'] == 1 and self.position == "flat":
+                self.buy(date, price)
+            
+            # Sell signal  
+            elif row['sell_signal'] == 1 and self.position == "long":
+                self.sell(date, price)
+        
+        # Calculate final portfolio value
+        final_price = signals.iloc[-1]['close']
+        final_portfolio_value = self.cash + (self.shares_owned * final_price)
+        
+        return {
+            "trades": self.trades,
+            "total_trades": len(self.trades),
+            "final_cash": self.cash,
+            "final_shares": self.shares_owned,
+            "final_portfolio_value": final_portfolio_value,
+            "total_return": (final_portfolio_value - 100000) / 100000 * 100
+        }
         
 
     def calculate_performance(self) -> Dict:

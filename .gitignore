@@ -43,7 +43,6 @@ Thumbs.db
 .env.local
 
 # Data files (if you add caching later)
-data/
 cache/
 *.csv
 *.parquet

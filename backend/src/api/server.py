@@ -23,6 +23,11 @@ def run_backtest(request: BacktestRequest):
     try:
         print(request)
         data_list = fetch_stock_data(request.symbol, request.period)
+        
+        # Handle case where data fetching fails
+        if data_list is None:
+            return {"error": "Failed to fetch data from yfinance and no cached data available"}
+        
         data = pd.DataFrame(data_list)  # Convert list to DataFrame
 
         strategy = MA_Crossover(fast_period=10, slow_period=20)

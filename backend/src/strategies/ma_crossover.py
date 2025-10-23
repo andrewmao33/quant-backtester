@@ -19,8 +19,8 @@ class MA_Crossover(BaseStrategy):
         '''
 
         df = data.copy()
-        df['fast_ma'] = df['close'].rolling(window=self.fast_period).mean()
-        df['slow_ma'] = df['close'].rolling(window=self.slow_period).mean()
+        df['fast_ma'] = df['Close'].rolling(window=self.fast_period).mean()
+        df['slow_ma'] = df['Close'].rolling(window=self.slow_period).mean()
         
         # Detect crossovers (not just when one is above the other)
         df['fast_above_slow'] = df['fast_ma'] > df['slow_ma']
@@ -41,6 +41,3 @@ class MA_Crossover(BaseStrategy):
         
         return df
 
-
-    def calculate_performance(self) -> Dict:
-        pass

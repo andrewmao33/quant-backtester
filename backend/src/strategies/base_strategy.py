@@ -72,15 +72,15 @@ class BaseStrategy(ABC):
         Execute trades based on buy/sell signals - common logic for all strategies
         """
         # Reset strategy state
-        self.cash = 100000
+        self.cash = 1000000
         self.shares_owned = 0
         self.position = "flat"
         self.trades = []
         
         # Execute trades day by day
         for index, row in signals.iterrows():
-            date = row['date']
-            price = row['close']
+            date = row['Date']  # Use the date column
+            price = row['Close']
             
             # Buy signal
             if row['buy_signal'] == 1 and self.position == "flat":
@@ -89,9 +89,14 @@ class BaseStrategy(ABC):
             # Sell signal  
             elif row['sell_signal'] == 1 and self.position == "long":
                 self.sell(date, price)
+
+            self.portfolio_values.append({
+                "date": date,
+                "portfolio_value": self.cash + (self.shares_owned * price)
+            })
         
         # Calculate final portfolio value
-        final_price = signals.iloc[-1]['close']
+        final_price = signals.iloc[-1]['Close']
         final_portfolio_value = self.cash + (self.shares_owned * final_price)
         
         return {
@@ -100,13 +105,33 @@ class BaseStrategy(ABC):
             "final_cash": self.cash,
             "final_shares": self.shares_owned,
             "final_portfolio_value": final_portfolio_value,
-            "total_return": (final_portfolio_value - 100000) / 100000 * 100
+            "total_return": (final_portfolio_value - 100000) / 100000 * 100,
+            "portfolio_values": self.portfolio_values
         }
         
 
     def calculate_performance(self) -> Dict:
         '''
-        calculate performance metrics for the strategy
-        output: Dict with performance metrics
+        calculate basic performance metrics
+
+        total return
+        final portfolio value
+        total trades
+        sharpe ratio - later
+
         '''
-        pass
+        if len(self.trades) == 0:
+            return {
+                "total_return": 0.0,
+                "sharpe_ratio": 0.0,
+                "max_drawdown": 0.0
+            }
+        
+        # Simple metrics for now
+        total_return = (self.cash + (self.shares_owned * 100) - 100000) / 100000 * 100
+        
+        return {
+            "total_return": total_return,
+            "sharpe_ratio": 0.0,  # Placeholder
+            "max_drawdown": 0.0   # Placeholder
+        }

@@ -8,6 +8,8 @@ def fetch_stock_data(symbol: str, period: str = "1y"):
         cached_data = fetch_from_cache(symbol, period)
         if cached_data is not None:
             print(f"Using cached data for {symbol}")
+            # Convert dates to strings for JSON serialization
+            cached_data['Date'] = cached_data.index.strftime('%Y-%m-%d')
             return cached_data.to_dict(orient="records")
         
         # Fetch from yfinance
@@ -19,6 +21,10 @@ def fetch_stock_data(symbol: str, period: str = "1y"):
             cache_file = f"cache/{symbol}_{period}.parquet"
             data.to_parquet(cache_file)
             print(f"Saved data to cache: {cache_file}")
+            
+            # Convert dates to strings for JSON serialization
+            data['Date'] = data.index.strftime('%Y-%m-%d')
+            return data.to_dict(orient="records")
         
         return data.to_dict(orient="records")
         

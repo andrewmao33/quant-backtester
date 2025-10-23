@@ -14,10 +14,10 @@ class BacktestingEngine:
     def run(self, data: pd.DataFrame):
         signals = self.strategy.generate_signals(data)
         trade_results = self.strategy.simulate_trades(data, signals)
-        performance_metrics = self.strategy.calculate_performance(signals)
+        #performance_metrics = self.strategy.calculate_performance()
         
         # Combine trade results with performance metrics
         return {
-            **trade_results,
-            **performance_metrics
+            **trade_results
+            #**performance_metrics
         }

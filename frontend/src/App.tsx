@@ -7,8 +7,11 @@ function App() {
   const [strategies, setStrategies] = useState<string[]>([]);
   const [selectedSymbol, setSelectedSymbol] = useState('');
   const [selectedStrategy, setSelectedStrategy] = useState('');
+  const [startDate, setStartDate] = useState('2024-01-01');
+  const [endDate, setEndDate] = useState('2024-12-31');
   const [fastPeriod, setFastPeriod] = useState(10);
   const [slowPeriod, setSlowPeriod] = useState(20);
+  const [initialCash, setInitialCash] = useState(100000);
   const [results, setResults] = useState<any>(null);
   const [loading, setLoading] = useState(false);
 
@@ -31,9 +34,14 @@ function App() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           symbol: selectedSymbol,
+          start_date: startDate,
+          end_date: endDate,
           strategy: selectedStrategy,
-          fast_period: fastPeriod,
-          slow_period: slowPeriod
+          initial_cash: initialCash,
+          strategy_params: {
+            fast_period: fastPeriod,
+            slow_period: slowPeriod,
+          }
         })
       });
       const data = await response.json();
@@ -56,6 +64,22 @@ function App() {
             <option key={symbol} value={symbol}>{symbol}</option>
           ))}
         </select>
+      </div>
+
+      <div style={{ marginBottom: '20px' }}>
+        <label>Start Date: </label>
+        <input 
+          type="date" 
+          value={startDate} 
+          onChange={(e) => setStartDate(e.target.value)}
+          style={{ marginRight: '20px' }}
+        />
+        <label>End Date: </label>
+        <input 
+          type="date" 
+          value={endDate} 
+          onChange={(e) => setEndDate(e.target.value)}
+        />
       </div>
 
       <div style={{ marginBottom: '20px' }}>
@@ -88,9 +112,21 @@ function App() {
         />
       </div>
 
+      <div style={{ marginBottom: '20px' }}>
+        <label>Initial Cash: $</label>
+        <input 
+          type="number" 
+          value={initialCash} 
+          onChange={(e) => setInitialCash(Number(e.target.value))}
+          style={{ width: '120px' }}
+          min="1000"
+          step="1000"
+        />
+      </div>
+
       <button 
         onClick={runBacktest} 
-        disabled={!selectedSymbol || !selectedStrategy || loading}
+        disabled={!selectedSymbol || !selectedStrategy || !startDate || !endDate || loading}
         style={{ padding: '10px 20px', fontSize: '16px' }}
       >
         {loading ? 'Running...' : 'Run Backtest'}

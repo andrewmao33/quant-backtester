@@ -5,8 +5,10 @@ from typing import Dict
 
 class MA_Crossover(BaseStrategy):
     def __init__(self, fast_period: int, slow_period: int, initial_cash: float = 100000):
-        self.fast_period = fast_period
-        self.slow_period = slow_period
+        self.params = {
+            "fast_period": fast_period,
+            "slow_period": slow_period
+        }
         super().__init__(initial_cash)
 
     def generate_signals(self, data: pd.DataFrame) -> pd.DataFrame:
@@ -19,8 +21,8 @@ class MA_Crossover(BaseStrategy):
         '''
 
         df = data.copy()
-        df['fast_ma'] = df['Close'].rolling(window=self.fast_period).mean()
-        df['slow_ma'] = df['Close'].rolling(window=self.slow_period).mean()
+        df['fast_ma'] = df['close'].rolling(window=self.params['fast_period']).mean()
+        df['slow_ma'] = df['close'].rolling(window=self.params['slow_period']).mean()
         
         # Detect crossovers (not just when one is above the other)
         df['fast_above_slow'] = df['fast_ma'] > df['slow_ma']

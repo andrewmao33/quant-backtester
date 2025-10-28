@@ -21,6 +21,7 @@ from typing import Dict
 
 class BaseStrategy(ABC):
     def __init__(self, initial_cash: float = 100000):
+        self.initial_cash = initial_cash
         self.cash = initial_cash
         self.shares_owned = 0
         self.position = "flat"  # flat or long
@@ -72,15 +73,15 @@ class BaseStrategy(ABC):
         Execute trades based on buy/sell signals - common logic for all strategies
         """
         # Reset strategy state
-        self.cash = 1000000
+        self.cash = self.initial_cash  # Use consistent initial cash value
         self.shares_owned = 0
         self.position = "flat"
         self.trades = []
         
         # Execute trades day by day
         for index, row in signals.iterrows():
-            date = row['Date']  # Use the date column
-            price = row['Close']
+            date = index  # Use the index (date) since it's set as index
+            price = row['close']
             
             # Buy signal
             if row['buy_signal'] == 1 and self.position == "flat":
@@ -91,13 +92,14 @@ class BaseStrategy(ABC):
                 self.sell(date, price)
 
             self.portfolio_values.append({
-                "date": date,
+                "date": date.strftime('%Y-%m-%d') if hasattr(date, 'strftime') else str(date)[:10],
                 "portfolio_value": self.cash + (self.shares_owned * price)
             })
         
         # Calculate final portfolio value
-        final_price = signals.iloc[-1]['Close']
+        final_price = signals.iloc[-1]['close']
         final_portfolio_value = self.cash + (self.shares_owned * final_price)
+        metrics = self.calculate_metrics(data)
         
         return {
             "trades": self.trades,
@@ -106,32 +108,24 @@ class BaseStrategy(ABC):
             "final_shares": self.shares_owned,
             "final_portfolio_value": final_portfolio_value,
             "total_return": (final_portfolio_value - 100000) / 100000 * 100,
-            "portfolio_values": self.portfolio_values
+            "portfolio_values": self.portfolio_values,
+            **metrics
         }
         
-
-    def calculate_performance(self) -> Dict:
+    def calculate_metrics(self, data: pd.DataFrame) -> Dict:
         '''
-        calculate basic performance metrics
-
-        total return
-        final portfolio value
-        total trades
-        sharpe ratio - later
-
+        calculate metrics
         '''
-        if len(self.trades) == 0:
-            return {
-                "total_return": 0.0,
-                "sharpe_ratio": 0.0,
-                "max_drawdown": 0.0
-            }
+        from src.backtesting.metrics import calculate_full_metrics
         
-        # Simple metrics for now
-        total_return = (self.cash + (self.shares_owned * 100) - 100000) / 100000 * 100
+        # Extract just the portfolio values as numbers
+        portfolio_values_list = [pv['portfolio_value'] for pv in self.portfolio_values]
         
-        return {
-            "total_return": total_return,
-            "sharpe_ratio": 0.0,  # Placeholder
-            "max_drawdown": 0.0   # Placeholder
-        }
+        return calculate_full_metrics(
+            strategy=self.__class__.__name__,
+            params=self.params,
+            initial_cash=self.initial_cash,
+            trades=self.trades,
+            portfolio_values=portfolio_values_list,
+            risk_free_rate=0.02  # Use 2% as default risk-free rate
+        )

@@ -1,4 +1,4 @@
-# Quant Backtester
+# QuantLab
 
 Minimalistic tool for backtesting trading strategies over historical stock data. Includes backend (FastAPI, SQLite, Alpha Vantage data fetch) and frontend (React with charting).
 
@@ -40,6 +40,3 @@ npm start
 ## Notes
 - Only US equities/ETFs supported (see `backend/data/symbols.json`)
 - Results/charts shown in frontend on successful backtest
-
----
-_For development/testing, see upcoming TODOs for test instructions._

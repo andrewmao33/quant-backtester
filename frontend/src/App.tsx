@@ -5,20 +5,32 @@ import MACrossoverChart from './components/MACrossoverChart';
 import BollingerChart from './components/BollingerChart';
 
 function App() {
+  const formatDate = (d: Date) => {
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+  const todayStr = formatDate(new Date());
+  const oneYearAgoStr = (() => {
+    const d = new Date();
+    d.setFullYear(d.getFullYear() - 1);
+    return formatDate(d);
+  })();
   const [symbols, setSymbols] = useState<string[]>([]);
   const [strategies, setStrategies] = useState<string[]>([]);
-  const [selectedSymbol, setSelectedSymbol] = useState('');
-  const [symbolQuery, setSymbolQuery] = useState('');
+  const [selectedSymbol, setSelectedSymbol] = useState('AAPL');
+  const [symbolQuery, setSymbolQuery] = useState('AAPL');
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [highlightIndex, setHighlightIndex] = useState(0);
   const [selectedStrategy, setSelectedStrategy] = useState('');
-  const [startDate, setStartDate] = useState('2024-01-01');
-  const [endDate, setEndDate] = useState('2024-12-31');
+  const [startDate, setStartDate] = useState(oneYearAgoStr);
+  const [endDate, setEndDate] = useState(todayStr);
   const [fastPeriod, setFastPeriod] = useState(10);
   const [slowPeriod, setSlowPeriod] = useState(20);
   const [bbPeriod, setBbPeriod] = useState(20);
   const [bbStd, setBbStd] = useState(2);
-  const [initialCash, setInitialCash] = useState(100000);
+  const [initialCash, setInitialCash] = useState(10000);
   const [results, setResults] = useState<any>(null);
   const [lastRunSymbol, setLastRunSymbol] = useState('');
   const [loading, setLoading] = useState(false);
@@ -68,12 +80,12 @@ function App() {
           end_date: endDate,
           strategy: selectedStrategy,
           initial_cash: initialCash,
-          strategy_params: selectedStrategy === 'ma_crossover'
+          strategy_params: selectedStrategy === 'Moving Average Crossover'
             ? {
                 fast_period: fastPeriod,
                 slow_period: slowPeriod,
               }
-            : selectedStrategy === 'bollinger_breakout'
+            : selectedStrategy === 'Bollinger Breakout'
             ? {
                 period: bbPeriod,
                 std: bbStd,
@@ -227,7 +239,7 @@ function App() {
         </div>
 
         {/* Conditional params */}
-        {selectedStrategy === 'ma_crossover' && (
+        {selectedStrategy === 'Moving Average Crossover' && (
           <div className="w-full flex flex-wrap items-end justify-center gap-4 mb-8">
             <div className="flex flex-col items-center">
               <label className="text-sm text-gray-300 mb-1">Fast Period</label>
@@ -250,7 +262,7 @@ function App() {
           </div>
         )}
 
-        {selectedStrategy === 'bollinger_breakout' && (
+        {selectedStrategy === 'Bollinger Breakout' && (
           <div className="w-full flex flex-wrap items-end justify-center gap-4 mb-8">
             <div className="flex flex-col items-center">
               <label className="text-sm text-gray-300 mb-1">Period</label>
@@ -324,7 +336,7 @@ function App() {
               </div>
             )}
 
-            {selectedStrategy === 'ma_crossover' && (
+            {selectedStrategy === 'Moving Average Crossover' && (
               <div className="mb-4 w-full">
                 <MACrossoverChart 
                   key={lastRunSymbol + startDate + endDate + (results?.candles?.length ?? 0) + (results?.trades?.length ?? 0)}
@@ -337,7 +349,7 @@ function App() {
               </div>
             )}
 
-            {selectedStrategy === 'bollinger_breakout' && (
+            {selectedStrategy === 'Bollinger Breakout' && (
               <div className="mb-4 w-full">
                 <BollingerChart
                   key={lastRunSymbol + startDate + endDate + (results?.candles?.length ?? 0) + (results?.trades?.length ?? 0)}

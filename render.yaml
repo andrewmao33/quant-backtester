@@ -17,7 +17,7 @@ services:
       - key: PYTHONUNBUFFERED
         value: "1"
 
-staticSites:
+static_sites:
   - name: quant-frontend
     rootDir: frontend
     buildCommand: npm ci && npm run build
@@ -28,4 +28,4 @@ staticSites:
       - key: VITE_API_BASE_URL
         # Update this to your backend URL after first deploy, e.g.:
         # https://quant-backend.onrender.com
-        value: https://quant-backend.onrender.com
+        value: https://quantlab.onrender.com

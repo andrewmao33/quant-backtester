@@ -1,0 +1,31 @@
+services:
+  - type: web
+    name: quant-backend
+    env: docker
+    rootDir: backend
+    plan: free
+    autoDeploy: true
+    healthCheckPath: /
+    disk:
+      name: backend-data
+      mountPath: /app/backend/data
+      sizeGB: 1
+    envVars:
+      - key: ALPHA_VANTAGE_API_KEY
+        # Set in Render dashboard after creating the service
+        sync: false
+      - key: PYTHONUNBUFFERED
+        value: "1"
+
+  - type: static
+    name: quant-frontend
+    rootDir: frontend
+    buildCommand: npm ci && npm run build
+    publishPath: build
+    plan: free
+    autoDeploy: true
+    envVars:
+      - key: VITE_API_BASE_URL
+        # Update this to your backend URL after first deploy, e.g.:
+        # https://quant-backend.onrender.com
+        value: https://quant-backend.onrender.com

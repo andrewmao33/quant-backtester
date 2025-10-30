@@ -21,9 +21,13 @@ app = FastAPI()
 load_dotenv()
 
 # Add CORS middleware
+frontend_origin = os.getenv("FRONTEND_ORIGIN")
+allowed_origins = ["http://localhost:3000"]
+if frontend_origin:
+    allowed_origins.append(frontend_origin)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],  # React dev server
+    allow_origins=allowed_origins,  # React dev server + optional deployed frontend
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

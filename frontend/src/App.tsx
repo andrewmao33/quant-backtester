@@ -5,6 +5,7 @@ import MACrossoverChart from './components/MACrossoverChart';
 import BollingerChart from './components/BollingerChart';
 
 function App() {
+  const API = (import.meta as any).env?.VITE_API_BASE_URL || (import.meta as any).env?.REACT_APP_API_BASE_URL || 'http://localhost:8000';
   const formatDate = (d: Date) => {
     const year = d.getFullYear();
     const month = String(d.getMonth() + 1).padStart(2, '0');
@@ -45,7 +46,6 @@ function App() {
       case 'currency':
         return currency.format(Number(v));
       case 'percent': {
-        // Backend returns some metrics already as fractions (0.12) and some possibly as percent (e.g., total_return in simulate_trades is 0-100). Normalize.
         const n = Number(v);
         const isFraction = Math.abs(n) <= 1;
         return percent.format(isFraction ? n : n / 100);
@@ -59,19 +59,19 @@ function App() {
 
   useEffect(() => {
     // Fetch symbols and strategies
-    fetch('http://localhost:8000/symbols')
+    fetch(`${API}/symbols`)
       .then(res => res.json())
       .then(data => setSymbols(data.symbols));
     
-    fetch('http://localhost:8000/strategies')
+    fetch(`${API}/strategies`)
       .then(res => res.json())
       .then(data => setStrategies(data.strategies));
-  }, []);
+  }, [API]);
 
   const runBacktest = async () => {
     setLoading(true);
     try {
-      const response = await fetch('http://localhost:8000/backtest', {
+      const response = await fetch(`${API}/backtest`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

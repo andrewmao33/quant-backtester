@@ -1,7 +1,7 @@
 services:
   - type: web
     name: quant-backend
-    env: docker
+    runtime: docker
     rootDir: backend
     plan: free
     autoDeploy: true
@@ -16,16 +16,19 @@ services:
         sync: false
       - key: PYTHONUNBUFFERED
         value: "1"
+      - key: FRONTEND_ORIGIN
+        # Set to your deployed frontend URL, e.g. https://quant-frontend.onrender.com
+        sync: false
 
-static_sites:
-  - name: quant-frontend
+  - type: web
+    name: quant-frontend
+    runtime: static
     rootDir: frontend
     buildCommand: npm ci && npm run build
-    publishPath: build
+    staticPublishPath: build
     plan: free
     autoDeploy: true
     envVars:
       - key: VITE_API_BASE_URL
-        # Update this to your backend URL after first deploy, e.g.:
-        # https://quant-backend.onrender.com
-        value: https://quantlab.onrender.com
+        # Set to your deployed backend URL, e.g. https://quant-backend.onrender.com
+        sync: false

@@ -22,8 +22,8 @@ const PortfolioChart: React.FC<PortfolioChartProps> = ({ data, height = 400 }) =
 
     const chartOptions = {
       layout: {
-        textColor: 'black',
-        background: { type: ColorType.Solid, color: 'white' },
+        textColor: 'white',
+        background: { type: ColorType.Solid, color: 'black' },
       },
     };
 
@@ -47,10 +47,10 @@ const PortfolioChart: React.FC<PortfolioChartProps> = ({ data, height = 400 }) =
       // hide the grid lines
       grid: {
         vertLines: {
-          visible: false,
+          color: '#111'
         },
         horzLines: {
-          visible: false,
+          color: '#111'
         },
       },
     });
@@ -78,7 +78,7 @@ const PortfolioChart: React.FC<PortfolioChartProps> = ({ data, height = 400 }) =
       font-family: sans-serif; 
       line-height: 18px; 
       font-weight: 300;
-      color: black;
+      color: white;
     `;
     chartContainerRef.current.appendChild(legend);
     legendRef.current = legend;
@@ -98,9 +98,11 @@ const PortfolioChart: React.FC<PortfolioChartProps> = ({ data, height = 400 }) =
     const setTooltipHtml = (name: string, date: string, price: string) => {
       if (legendRef.current) {
         legendRef.current.innerHTML = `
-          <div style="font-size: 24px; margin: 4px 0px;">${name}</div>
-          <div style="font-size: 22px; margin: 4px 0px;">$${price}</div>
-          <div>${date}</div>
+          <div style="text-align:left;">
+            <div style="font-size: 24px; margin: 4px 0px 10px 0px;">${name}</div>
+            <div style="font-size: 22px; margin: 4px 0px;">$${price}</div>
+            <div>${date}</div>
+          </div>
         `;
       }
     };

@@ -101,6 +101,52 @@ class BaseStrategy(ABC):
         final_portfolio_value = self.cash + (self.shares_owned * final_price)
         metrics = self.calculate_metrics(data)
         
+        # Build OHLC candles for frontend chart
+        candles = []
+        if all(col in data.columns for col in ['open', 'high', 'low', 'close']):
+            for idx, row in data.iterrows():
+                candles.append({
+                    "date": idx.strftime('%Y-%m-%d') if hasattr(idx, 'strftime') else str(idx)[:10],
+                    "open": float(row['open']),
+                    "high": float(row['high']),
+                    "low": float(row['low']),
+                    "close": float(row['close']),
+                })
+        
+        # Extract moving averages if available in signals
+        fast_ma_series = []
+        slow_ma_series = []
+        if 'fast_ma' in signals.columns:
+            for idx, val in signals['fast_ma'].items():
+                fast_ma_series.append({
+                    "date": idx.strftime('%Y-%m-%d') if hasattr(idx, 'strftime') else str(idx)[:10],
+                    "value": None if pd.isna(val) else float(val)
+                })
+        if 'slow_ma' in signals.columns:
+            for idx, val in signals['slow_ma'].items():
+                slow_ma_series.append({
+                    "date": idx.strftime('%Y-%m-%d') if hasattr(idx, 'strftime') else str(idx)[:10],
+                    "value": None if pd.isna(val) else float(val)
+                })
+
+        # Extract Bollinger bands if available
+        upper_band_series = []
+        lower_band_series = []
+        if 'upper_band' in signals.columns:
+            for idx, val in signals['upper_band'].items():
+                upper_band_series.append({
+                    "date": idx.strftime('%Y-%m-%d') if hasattr(idx, 'strftime') else str(idx)[:10],
+                    "value": None if pd.isna(val) else float(val)
+                })
+        if 'lower_band' in signals.columns:
+            for idx, val in signals['lower_band'].items():
+                lower_band_series.append({
+                    "date": idx.strftime('%Y-%m-%d') if hasattr(idx, 'strftime') else str(idx)[:10],
+                    "value": None if pd.isna(val) else float(val)
+                })
+
+        
+        
         return {
             "trades": self.trades,
             "total_trades": len(self.trades),
@@ -109,6 +155,11 @@ class BaseStrategy(ABC):
             "final_portfolio_value": final_portfolio_value,
             "total_return": (final_portfolio_value - 100000) / 100000 * 100,
             "portfolio_values": self.portfolio_values,
+            "candles": candles,
+            "fast_ma": fast_ma_series if fast_ma_series else None,
+            "slow_ma": slow_ma_series if slow_ma_series else None,
+            "upper_band": upper_band_series if upper_band_series else None,
+            "lower_band": lower_band_series if lower_band_series else None,
             **metrics
         }
         

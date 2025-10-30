@@ -116,22 +116,3 @@ class AlphaVantageFetcher:
                 time.sleep(delay)
         
         return results
-
-# Example usage
-if __name__ == "__main__":
-    API_KEY = 'TMD1NUWLD8WDMQOV'
-    
-    fetcher = AlphaVantageFetcher(API_KEY)
-    
-    # Test with a single symbol
-    print("Testing Alpha Vantage API...")
-    data = fetcher.fetch_stock_data('IBM')
-    
-    if data:
-        print(f"\nSample data for IBM:")
-        print(f"Date range: {data[0]['date']} to {data[-1]['date']}")
-        print(f"Total records: {len(data)}")
-        print(f"First record: {data[0]}")
-        print(f"Last record: {data[-1]}")
-    else:
-        print("Failed to fetch data")

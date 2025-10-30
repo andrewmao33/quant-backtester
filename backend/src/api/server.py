@@ -101,7 +101,7 @@ def get_strategies():
     '''
     returns list of all available strategies
     '''
-    return {"strategies": ["ma_crossover", "bollinger_breakout"]}
+    return {"strategies": ["Moving Average Crossover", "Bollinger Breakout"]}
 
 @app.get("/symbols/{symbol}/dates")
 def get_symbol_dates(symbol: str):
@@ -161,11 +161,17 @@ def run_backtest(request: BacktestRequest):
         # Final guards after fetch attempts
         if start_requested < start_available_dt:
             raise HTTPException(status_code=400, detail=f"Start date {request.start_date} is before available data. Earliest available: {start_available}")
+        # If requested end date is beyond latest available (e.g., today's data not yet posted),
+        # clamp to latest available instead of erroring
         if end_requested > end_available_dt:
-            raise HTTPException(status_code=400, detail=f"End date {request.end_date} is after available data. Latest available: {end_available}")
+            end_requested = end_available_dt
+        
+        # Use possibly clamped dates for downstream steps
+        start_str = start_requested.strftime('%Y-%m-%d')
+        end_str = end_requested.strftime('%Y-%m-%d')
         
         # Get data from database
-        data_list = get_stock_data(symbol, request.start_date, request.end_date)
+        data_list = get_stock_data(symbol, start_str, end_str)
         
         if not data_list:
             raise HTTPException(
@@ -178,17 +184,17 @@ def run_backtest(request: BacktestRequest):
         data['date'] = pd.to_datetime(data['date'])
         data = data.set_index('date').sort_index()
         
-        print(f"Retrieved {len(data)} records for {symbol} from {request.start_date} to {request.end_date}")
+        print(f"Retrieved {len(data)} records for {symbol} from {start_str} to {end_str}")
         
         # Initialize strategy based on request
-        if request.strategy == "ma_crossover":
+        if request.strategy == "Moving Average Crossover":
             # Extract strategy parameters with defaults
             fast_period = request.strategy_params.get('fast_period', 10)
             slow_period = request.strategy_params.get('slow_period', 30)
             initial_cash = request.initial_cash or 100000
             
             strategy = MA_Crossover(fast_period=fast_period, slow_period=slow_period, initial_cash=initial_cash)
-        elif request.strategy == "bollinger_breakout":
+        elif request.strategy == "Bollinger Breakout":
             period = request.strategy_params.get('period', 20)
             std = request.strategy_params.get('std', 2)
             initial_cash = request.initial_cash or 100000
@@ -196,7 +202,7 @@ def run_backtest(request: BacktestRequest):
         else:
             raise HTTPException(
                 status_code=400, 
-                detail=f"Unknown strategy: {request.strategy}. Available strategies: ['ma_crossover', 'bollinger_breakout']"
+                detail=f"Unknown strategy: {request.strategy}. Available strategies: ['Moving Average Crossover', 'Bollinger Breakout']"
             )
         
         # Run backtest

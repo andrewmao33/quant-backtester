@@ -6,10 +6,6 @@ services:
     plan: free
     autoDeploy: true
     healthCheckPath: /
-    disk:
-      name: backend-data
-      mountPath: /app/backend/data
-      sizeGB: 1
     envVars:
       - key: ALPHA_VANTAGE_API_KEY
         # Set in Render dashboard after creating the service

@@ -202,6 +202,7 @@ def run_backtest(request: BacktestRequest):
             period = request.strategy_params.get('period', 20)
             std = request.strategy_params.get('std', 2)
             initial_cash = request.initial_cash or 100000
+            
             strategy = BollingerBreakout(period=period, std=std, initial_cash=initial_cash)
         else:
             raise HTTPException(

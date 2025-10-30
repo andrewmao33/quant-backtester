@@ -1,0 +1,35 @@
+# syntax=docker/dockerfile:1
+
+FROM python:3.10-slim AS base
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=1
+
+WORKDIR /app/backend
+
+# System deps for pandas and SQLite
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+       build-essential \
+       gcc \
+       liblapack-dev \
+       gfortran \
+       curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Python deps
+COPY requirements.txt /app/backend/requirements.txt
+RUN pip install --upgrade pip \
+    && pip install -r requirements.txt
+
+# Copy app code and persistent data
+COPY src /app/backend/src
+COPY data /app/backend/data
+
+# Ensure data dir exists (and can be mounted)
+RUN mkdir -p /app/backend/data
+
+EXPOSE 8000
+
+CMD ["uvicorn", "src.api.server:app", "--host", "0.0.0.0", "--port", "8000"]

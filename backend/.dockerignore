@@ -1,0 +1,28 @@
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+*.swp
+.cache
+.venv
+venv
+.env
+.git
+.gitignore
+**/.pytest_cache
+**/.mypy_cache
+**/.ruff_cache
+
+# Node
+node_modules
+
+# OS
+.DS_Store
+
+# Python build
+build/
+dist/
+*.egg-info/
+
+# Local data you don't want baked into images (uncomment to exclude DB)
+# data/backtester.db

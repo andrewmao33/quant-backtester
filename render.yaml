@@ -17,8 +17,8 @@ services:
       - key: PYTHONUNBUFFERED
         value: "1"
 
-  - type: static_site
-    name: quant-frontend
+staticSites:
+  - name: quant-frontend
     rootDir: frontend
     buildCommand: npm ci && npm run build
     publishPath: build

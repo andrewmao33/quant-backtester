@@ -5,7 +5,7 @@ import MACrossoverChart from './components/MACrossoverChart';
 import BollingerChart from './components/BollingerChart';
 
 function App() {
-  const API = (import.meta as any).env?.VITE_API_BASE_URL || (import.meta as any).env?.REACT_APP_API_BASE_URL || 'http://localhost:8000';
+  const API = process.env.REACT_APP_API_BASE_URL || 'http://localhost:8000';
   const formatDate = (d: Date) => {
     const year = d.getFullYear();
     const month = String(d.getMonth() + 1).padStart(2, '0');
